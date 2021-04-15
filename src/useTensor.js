@@ -1,4 +1,3 @@
-import * as qna from "@tensorflow-models/qna";
 import { useState, useEffect } from "react";
 
 const useTensor = (file, e) => {

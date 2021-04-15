@@ -15,8 +15,10 @@
     "react-copy-to-clipboard": "^5.0.3",
     "react-dom": "^16.10.2",
     "react-fade-in": "^2.0.1",
+    "react-highlight-within-textarea": "^1.0.1",
     "react-loader-spinner": "^4.0.0",
     "react-scripts": "3.2.0",
+    "reactjs-popup": "^2.0.4",
     "tensorflow-models": "0.0.1",
     "tesseract.js": "^2.0.0-beta.1"
   },

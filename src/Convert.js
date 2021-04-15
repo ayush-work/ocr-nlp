@@ -1,17 +1,17 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { createWorker } from "tesseract.js";
 import Fade from "react-fade-in";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-import Loader from "react-loader-spinner";
 import { ProgressBar } from "react-bootstrap";
-import Answer from "./Answer";
+import "reactjs-popup/dist/index.css";
 const Convert = () => {
   const [passage, setPassage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadEngine, setLoadEngine] = useState(false);
+  const [selectedLang, setSelectedLang] = useState("eng");
+  const [selectEng, setSelectEng] = useState(true);
+  const [selectHin, setSelectHin] = useState(false);
+  const [file, setFile] = useState(null);
   const [log, setLog] = useState({});
-
   const worker = createWorker({
     logger: (m) => {
       console.log(m);
@@ -21,10 +21,11 @@ const Convert = () => {
       });
     },
   });
+
   const getData = async () => {
     await worker.load();
-    await worker.loadLanguage("eng");
-    await worker.initialize("eng");
+    await worker.loadLanguage(selectedLang);
+    await worker.initialize(selectedLang);
     setLoading(true);
     const {
       data: { text },
@@ -32,71 +33,88 @@ const Convert = () => {
     setPassage(text);
     setLoading(false);
   };
-  const [file, setFile] = useState(null);
 
   const change = (e) => {
     setFile(e.target.files[0]);
   };
-  useEffect(() => {
-    setTimeout(() => {
-      setLoadEngine(true);
-    }, 1000);
-  }, []);
+
+  const toggleEng = () => {
+    setSelectedLang("eng");
+    setSelectEng(true);
+    setSelectHin(false);
+  };
+  const toggleHin = () => {
+    setSelectedLang("hin");
+    setSelectHin(true);
+    setSelectEng(false);
+  };
 
   return (
     <>
-      {!loadEngine ? (
-        <Load></Load>
-      ) : (
-        <>
-          <Fade>
-            <div className="file-input">
-              <input
-                type="file"
-                id="myfile"
-                name="myfile"
-                onChange={change}
-              ></input>
-              <button
-                className="btn"
-                type="button"
-                onClick={() => {
-                  getData();
-                }}
-              >
-                Convert
-              </button>
+      <Fade>
+        <div className="convert-container">
+          <div className="file-input">
+            <input
+              type="file"
+              id="myfile"
+              name="myfile"
+              onChange={change}
+            ></input>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => {
+                getData();
+              }}
+            >
+              Convert
+            </button>
+          </div>
+          <div className="btn-group">
+            <button
+              className={`btn-upload ${selectEng ? "selected" : ""}`}
+              onClick={() => {
+                toggleEng();
+              }}
+            >
+              English
+            </button>
+            <button
+              className={`btn-upload ${selectHin ? "selected" : ""}`}
+              onClick={() => {
+                toggleHin();
+              }}
+            >
+              Hindi
+            </button>
+          </div>
+          <div className="selected-lang">
+            <div>
+              Language: <span>{selectEng ? "English" : "Hindi"}</span>
             </div>
-            <div className="converted-container">
-              <div className="converted">
-                {!loading ? (
-                  <p>{passage}</p>
-                ) : (
-                  <>
-                    <div className="log">
-                      <p>{log.status}</p>
-                      <ProgressBar
-                        label={`${Math.floor(log.progress.toFixed(2) * 100)}%`}
-                        now={Math.floor(log.progress.toFixed(2) * 100)}
-                      ></ProgressBar>
-                    </div>
-                  </>
-                )}
-              </div>
-              <Answer></Answer>
+          </div>
+
+          <div className="converted-container">
+            <div className="converted">
+              {!loading ? (
+                <p>{passage}</p>
+              ) : (
+                <div>
+                  <div className="log">
+                    <p>{log.status}</p>
+                    <ProgressBar
+                      label={`${Math.floor(log.progress.toFixed(2) * 100)}%`}
+                      now={Math.floor(log.progress.toFixed(2) * 100)}
+                    ></ProgressBar>
+                  </div>
+                </div>
+              )}
             </div>
-          </Fade>
-        </>
-      )}
+          </div>
+        </div>
+      </Fade>
     </>
   );
 };
-const Load = () => {
-  return (
-    <div className="loader">
-      <div>Loading Tesseract Engine</div>
-      <Loader type="ThreeDots" color="#0070f3" height={40} width={40}></Loader>
-    </div>
-  );
-};
+
 export default Convert;
